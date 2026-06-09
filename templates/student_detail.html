@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Student #{{ student.id }} - EduPredict{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2><i class="fas fa-user me-2" style="color: var(--accent);"></i>Student #{{ student.id }} Detail</h2>
+            <p>Individual student analysis and dropout risk explanation</p>
+        </div>
+        <div>
+            {% if risk_level == 'At-Risk' %}
+                <span class="badge-risk" style="font-size: 16px; padding: 8px 20px;">
+                    <i class="fas fa-exclamation-triangle me-1"></i>AT-RISK - {{ "%.1f"|format(risk_prob) }}%
+                </span>
+            {% else %}
+                <span class="badge-safe" style="font-size: 16px; padding: 8px 20px;">
+                    <i class="fas fa-check-circle me-1"></i>NOT AT-RISK - {{ "%.1f"|format(100 - risk_prob) }}% Safe
+                </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-id-card me-2"></i>Student Information</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <h6 style="color: var(--accent); margin-bottom: 16px;"><i class="fas fa-user me-2"></i>Personal</h6>
+                        <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Gender</span><br><strong>{{ student.Gender }}</strong></div>
+                        <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Age</span><br><strong>{{ student.Age }}</strong></div>
+                        <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">School</span><br><strong>{{ student.School }}</strong></div>
+                        <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Address</span><br><strong>{{ student.Address }}</strong></div>
+                        <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Guardian</span><br><strong>{{ student.Guardian }}</strong></div>
+                    </div>
+                    <div class="col-6">
+                        <h6 style="color: #3498db; margin-bottom: 16px;"><i class="fas fa-book me-2"></i>Academic</h6>
+                        <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Grade 1</span><br><strong style="font-size: 20px;">{{ student.Grade_1 }}</strong>/20</div>
+                        <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Grade 2</span><br><strong style="font-size: 20px;">{{ student.Grade_2 }}</strong>/20</div>
+                        <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Final Grade</span><br><strong style="font-size: 20px;">{{ student.Final_Grade }}</strong>/20</div>
+                        <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Failures</span><br><strong>{{ student.Number_of_Failures }}</strong></div>
+                        <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Absences</span><br><strong>{{ student.Number_of_Absences }}</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-chart-radar me-2"></i>Student Profile</div>
+            <div class="card-body">
+                <div id="radarChart"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-project-diagram me-2"></i>SHAP Explanation - Why This Prediction?</div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-7">
+                <div id="shapChart"></div>
+            </div>
+            <div class="col-lg-5">
+                <h6 class="mb-3">Top Contributing Factors</h6>
+                {% for exp in explanation[:6] %}
+                <div class="d-flex align-items-center mb-3">
+                    <div style="width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; 
+                        background: {% if exp.shap_value > 0 %}rgba(239,68,68,0.15); color: var(--danger){% else %}rgba(34,197,94,0.15); color: var(--success){% endif %};">
+                        {% if exp.shap_value > 0 %}<i class="fas fa-arrow-up"></i>{% else %}<i class="fas fa-arrow-down"></i>{% endif %}
+                    </div>
+                    <div class="ms-3">
+                        <div style="font-size: 13px; font-weight: 600;">{{ exp.feature.replace('_', ' ') }}</div>
+                        <div style="color: var(--tx2); font-size: 11px;">
+                            {{ exp.direction | capitalize }} risk by {{ "%.4f"|format(exp.impact) }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-hand-holding-heart me-2" style="color: #e74c3c;"></i>Recommended Interventions</div>
+    <div class="card-body">
+        {% for intervention in interventions %}
+        <div style="padding:18px 22px;margin-bottom:14px;background:var(--prs);border-radius:14px;border-left:4px solid var(--pr)">
+            <h6 style="margin-bottom:8px;font-size:15px;color:var(--tx)">{{ loop.index }}. {{ intervention.factor }}</h6>
+            <p style="color:var(--tx2);font-size:14px;margin-bottom:8px;line-height:1.6">{{ intervention.description }}</p>
+            <p style="color:var(--grn);font-size:14px;margin:0;line-height:1.5"><i class="fas fa-check" style="margin-right:6px"></i>{{ intervention.action }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="text-center mb-4">
+    <a href="{{ url_for('students') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i>Back to Students</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const config = {responsive: true, displayModeBar: false};
+    Plotly.newPlot('shapChart', JSON.parse('{{ shap_plot | safe }}').data, JSON.parse('{{ shap_plot | safe }}').layout, config);
+    Plotly.newPlot('radarChart', JSON.parse('{{ radar_plot | safe }}').data, JSON.parse('{{ radar_plot | safe }}').layout, config);
+</script>
+{% endblock %}

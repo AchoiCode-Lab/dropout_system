@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Reports - EduPredict{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-file-alt me-2" style="color: var(--pr);"></i>Analysis Report</h2>
+    <p>Model evaluation report and dataset analysis - for Chapter 4 of thesis</p>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-database me-2"></i>Dataset Summary</div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-2">
+                <div style="font-size: 28px; font-weight: 700; color: var(--pr);">{{ stats.total }}</div>
+                <div style="color: var(--tx2); font-size: 12px;">Total Records</div>
+            </div>
+            <div class="col-md-2">
+                <div style="font-size: 28px; font-weight: 700; color: var(--danger);">{{ stats.at_risk }}</div>
+                <div style="color: var(--tx2); font-size: 12px;">At-Risk ({{ stats.risk_pct }}%)</div>
+            </div>
+            <div class="col-md-2">
+                <div style="font-size: 28px; font-weight: 700; color: var(--grn);">{{ stats.not_at_risk }}</div>
+                <div style="color: var(--tx2); font-size: 12px;">Not At-Risk</div>
+            </div>
+            <div class="col-md-2">
+                <div style="font-size: 28px; font-weight: 700;">{{ stats.avg_grade }}</div>
+                <div style="color: var(--tx2); font-size: 12px;">Avg Final Grade</div>
+            </div>
+            <div class="col-md-2">
+                <div style="font-size: 28px; font-weight: 700;">{{ stats.avg_absences }}</div>
+                <div style="color: var(--tx2); font-size: 12px;">Avg Absences</div>
+            </div>
+            <div class="col-md-2">
+                <div style="font-size: 28px; font-weight: 700;">{{ stats.avg_failures }}</div>
+                <div style="color: var(--tx2); font-size: 12px;">Avg Failures</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-chart-bar me-2"></i>Model Evaluation Report (Random Forest)</div>
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <h6 class="mb-3">Classification Metrics</h6>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong style="color: var(--pr);">Accuracy</strong></td>
+                                <td><span style="font-size: 20px; font-weight: 700; color: var(--grn);">{{ "%.2f"|format(metrics.accuracy * 100) }}%</span></td>
+                                <td style="color: var(--tx2); font-size: 13px;">Percentage of all predictions that were correct. Shows overall model performance.</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--pr);">Precision</strong></td>
+                                <td><span style="font-size: 20px; font-weight: 700; color: var(--grn);">{{ "%.2f"|format(metrics.precision * 100) }}%</span></td>
+                                <td style="color: var(--tx2); font-size: 13px;">Of students predicted as At-Risk, how many actually were. High precision = fewer false alarms.</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--pr);">Recall</strong></td>
+                                <td><span style="font-size: 20px; font-weight: 700; color: var(--grn);">{{ "%.2f"|format(metrics.recall * 100) }}%</span></td>
+                                <td style="color: var(--tx2); font-size: 13px;">Of all actual At-Risk students, how many were detected. High recall = fewer missed students.</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--pr);">F1-Score</strong></td>
+                                <td><span style="font-size: 20px; font-weight: 700; color: var(--grn);">{{ "%.2f"|format(metrics.f1_score * 100) }}%</span></td>
+                                <td style="color: var(--tx2); font-size: 13px;">Harmonic mean of Precision and Recall. Best single metric for imbalanced datasets.</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--pr);">ROC-AUC</strong></td>
+                                <td><span style="font-size: 20px; font-weight: 700; color: var(--grn);">{{ "%.2f"|format(metrics.roc_auc * 100) }}%</span></td>
+                                <td style="color: var(--tx2); font-size: 13px;">Area Under the ROC Curve. Measures model's ability to distinguish between classes.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <h6 class="mb-3">Model Configuration</h6>
+                <div class="p-3" style="background: rgba(59,130,246,0.05); border-radius: 8px;">
+                    <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Algorithm</span><br><strong>Random Forest</strong></div>
+                    <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Number of Trees</span><br><strong>200</strong></div>
+                    <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Max Depth</span><br><strong>15</strong></div>
+                    <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Class Weight</span><br><strong>Balanced</strong></div>
+                    <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Training Samples</span><br><strong>{{ metrics.train_size }}</strong></div>
+                    <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Testing Samples</span><br><strong>{{ metrics.test_size }}</strong></div>
+                    <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Total Features</span><br><strong>{{ metrics.n_features }}</strong></div>
+                    <div class="mb-2"><span style="color: var(--tx2); font-size: 12px;">Explainer</span><br><strong>TreeSHAP</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-th me-2"></i>Confusion Matrix</div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-6">
+                <div id="cmChart"></div>
+            </div>
+            <div class="col-lg-6">
+                <h6 class="mb-3">Interpretation</h6>
+                <div style="padding:16px 20px;margin-bottom:14px;background:rgba(52,211,153,.06);border-radius:14px;border-left:4px solid var(--grn)">
+                    <strong style="color:var(--grn);font-size:16px">True Negative (TN): {{ metrics.confusion_matrix[0][0] }}</strong>
+                    <p style="color:var(--tx2);font-size:14px;margin:6px 0 0;line-height:1.5">Students correctly predicted as Not At-Risk.</p>
+                </div>
+                <div style="padding:16px 20px;margin-bottom:14px;background:rgba(52,211,153,.06);border-radius:14px;border-left:4px solid var(--grn)">
+                    <strong style="color:var(--grn);font-size:16px">True Positive (TP): {{ metrics.confusion_matrix[1][1] }}</strong>
+                    <p style="color:var(--tx2);font-size:14px;margin:6px 0 0;line-height:1.5">At-Risk students correctly identified.</p>
+                </div>
+                <div style="padding:16px 20px;margin-bottom:14px;background:rgba(244,63,94,.06);border-radius:14px;border-left:4px solid var(--red)">
+                    <strong style="color:var(--red);font-size:16px">False Positive (FP): {{ metrics.confusion_matrix[0][1] }}</strong>
+                    <p style="color:var(--tx2);font-size:14px;margin:6px 0 0;line-height:1.5">Safe students incorrectly flagged as At-Risk (false alarm).</p>
+                </div>
+                <div style="padding:16px 20px;margin-bottom:14px;background:rgba(244,63,94,.06);border-radius:14px;border-left:4px solid var(--red)">
+                    <strong style="color:var(--red);font-size:16px">False Negative (FN): {{ metrics.confusion_matrix[1][0] }}</strong>
+                    <p style="color:var(--tx2);font-size:14px;margin:6px 0 0;line-height:1.5">At-Risk students missed by the model (most critical error).</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-cogs me-2"></i>Preprocessing Pipeline Summary</div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr><th>Step</th><th>Task</th><th>Details</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>Data Collection</td><td>3000 records (649 original + 2351 synthesized with noise injection)</td><td><span class="badge-safe">Done</span></td></tr>
+                    <tr><td>2</td><td>Data Inspection</td><td>34 raw features, 0 missing values</td><td><span class="badge-safe">Done</span></td></tr>
+                    <tr><td>3</td><td>Duplicate Removal</td><td>Removed duplicates, cleaned dataset</td><td><span class="badge-safe">Done</span></td></tr>
+                    <tr><td>4</td><td>Target Analysis</td><td>Binary: At-Risk (16.1%) vs Not At-Risk (83.9%)</td><td><span class="badge-safe">Done</span></td></tr>
+                    <tr><td>5</td><td>Feature Categorization</td><td>Academic (9), Attendance (1), Behavioral (7), Demographic (16)</td><td><span class="badge-safe">Done</span></td></tr>
+                    <tr><td>6</td><td>Label Encoding</td><td>13 binary categorical features encoded</td><td><span class="badge-safe">Done</span></td></tr>
+                    <tr><td>7</td><td>One-Hot Encoding</td><td>4 nominal features (Mother_Job, Father_Job, Reason, Guardian)</td><td><span class="badge-safe">Done</span></td></tr>
+                    <tr><td>8</td><td>Feature Scaling</td><td>StandardScaler on 16 numerical features (mean=0, std=1)</td><td><span class="badge-safe">Done</span></td></tr>
+                    <tr><td>9</td><td>Train-Test Split</td><td>80% training / 20% testing, stratified</td><td><span class="badge-safe">Done</span></td></tr>
+                    <tr><td>10</td><td>Model Training</td><td>Random Forest (200 trees, max_depth=15, balanced weights)</td><td><span class="badge-safe">Done</span></td></tr>
+                    <tr><td>11</td><td>SHAP Computation</td><td>TreeSHAP for feature attribution on all predictions</td><td><span class="badge-safe">Done</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const config = {responsive: true, displayModeBar: false};
+    Plotly.newPlot('cmChart', JSON.parse('{{ cm_chart | safe }}').data, JSON.parse('{{ cm_chart | safe }}').layout, config);
+</script>
+{% endblock %}

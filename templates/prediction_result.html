@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Prediction Result - EduPredict{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-clipboard-check me-2" style="color: var(--accent);"></i>Prediction Result</h2>
+    <p>Dropout risk prediction with SHAP-based explanation</p>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-tachometer-alt me-2"></i>Risk Assessment</div>
+            <div class="card-body text-center">
+                <div id="riskGauge"></div>
+                <div class="mt-3">
+                    {% if risk_level == 'At-Risk' %}
+                        <span class="badge-risk" style="font-size: 18px; padding: 8px 24px;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>AT-RISK
+                        </span>
+                    {% else %}
+                        <span class="badge-safe" style="font-size: 18px; padding: 8px 24px;">
+                            <i class="fas fa-check-circle me-2"></i>NOT AT-RISK
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="row mt-4">
+                    <div class="col-6">
+                        <div style="font-size: 24px; font-weight: 700; color: var(--danger);">{{ "%.1f"|format(risk_prob) }}%</div>
+                        <div style="color: var(--tx2); font-size: 12px;">Dropout Risk</div>
+                    </div>
+                    <div class="col-6">
+                        <div style="font-size: 24px; font-weight: 700; color: var(--success);">{{ "%.1f"|format(safe_prob) }}%</div>
+                        <div style="color: var(--tx2); font-size: 12px;">Safe Probability</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-project-diagram me-2"></i>SHAP Feature Impact</div>
+            <div class="card-body">
+                <div id="shapChart"></div>
+                <p style="color: var(--tx2); font-size: 11px; margin-top: 8px;">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <strong style="color: #e74c3c;">Red bars</strong> increase dropout risk. 
+                    <strong style="color: #2ecc71;">Green bars</strong> decrease dropout risk.
+                    SHAP values show each feature's contribution to this specific prediction.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-lightbulb me-2" style="color: #f39c12;"></i>Detailed Feature Explanation</div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Feature</th>
+                        <th>SHAP Value</th>
+                        <th>Direction</th>
+                        <th>Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exp in explanation %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td><strong>{{ exp.feature.replace('_', ' ') }}</strong></td>
+                        <td>
+                            <span style="color: {% if exp.shap_value > 0 %}var(--danger){% else %}var(--success){% endif %}; font-weight: 600;">
+                                {{ "%.4f"|format(exp.shap_value) }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if exp.direction == 'increases' %}
+                                <span style="color: var(--danger);"><i class="fas fa-arrow-up"></i> Increases Risk</span>
+                            {% else %}
+                                <span style="color: var(--success);"><i class="fas fa-arrow-down"></i> Decreases Risk</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="background: rgba(255,255,255,0.05); border-radius: 4px; height: 8px; width: 100px; overflow: hidden;">
+                                <div style="height: 100%; width: {{ (exp.impact / explanation[0].impact * 100)|int }}%; background: {% if exp.shap_value > 0 %}var(--danger){% else %}var(--success){% endif %}; border-radius: 4px;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-hand-holding-heart me-2" style="color: #e74c3c;"></i>Suggested Interventions</div>
+    <div class="card-body">
+        {% for intervention in interventions %}
+        <div style="padding:18px 22px;margin-bottom:14px;background:var(--prs);border-radius:14px;border-left:4px solid var(--pr)">
+            <h6 style="margin-bottom:8px;font-size:15px;color:var(--tx)"><i class="fas fa-flag" style="margin-right:8px;color:var(--pr)"></i>{{ intervention.factor }}</h6>
+            <p style="color:var(--tx2);font-size:14px;margin-bottom:10px;line-height:1.6">{{ intervention.description }}</p>
+            <p style="color:var(--grn);font-size:14px;margin:0;line-height:1.5"><i class="fas fa-check-circle" style="margin-right:6px"></i><strong>Action:</strong> {{ intervention.action }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-database me-2"></i>Input Data Summary</div>
+    <div class="card-body">
+        <div class="row">
+            {% for key, value in student_data.items() %}
+            <div class="col-md-3 mb-2">
+                <span style="color: var(--tx2); font-size: 12px;">{{ key.replace('_', ' ') }}</span><br>
+                <strong style="font-size: 14px;">{{ value }}</strong>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="text-center mb-4">
+    <a href="{{ url_for('predict') }}" class="btn btn-primary me-2"><i class="fas fa-redo me-2"></i>New Prediction</a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-chart-line me-2"></i>Back to Dashboard</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const config = {responsive: true, displayModeBar: false};
+    Plotly.newPlot('riskGauge', JSON.parse('{{ risk_gauge | safe }}').data, JSON.parse('{{ risk_gauge | safe }}').layout, config);
+    Plotly.newPlot('shapChart', JSON.parse('{{ shap_plot | safe }}').data, JSON.parse('{{ shap_plot | safe }}').layout, config);
+</script>
+{% endblock %}

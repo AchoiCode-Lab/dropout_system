@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block title %}New Prediction - EduPredict{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-brain me-2" style="color: var(--accent);"></i>New Prediction</h2>
+    <p>Enter student data to predict dropout risk using Random Forest + SHAP</p>
+</div>
+
+<form method="POST" action="{{ url_for('predict') }}">
+    
+    <div class="card mb-4">
+        <div class="card-header"><i class="fas fa-book me-2" style="color: #3498db;"></i>Academic Information</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">School</label>
+                    <select class="form-select" name="School" required>
+                        <option value="GP">Gabriel Pereira (GP)</option>
+                        <option value="MS">Mousinho da Silveira (MS)</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Grade 1 (0-20)</label>
+                    <input type="number" class="form-control" name="Grade_1" min="0" max="20" value="10" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Grade 2 (0-20)</label>
+                    <input type="number" class="form-control" name="Grade_2" min="0" max="20" value="10" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Final Grade (0-20)</label>
+                    <input type="number" class="form-control" name="Final_Grade" min="0" max="20" value="10" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Number of Failures (0-4)</label>
+                    <input type="number" class="form-control" name="Number_of_Failures" min="0" max="4" value="0" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Study Time (1-4)</label>
+                    <select class="form-select" name="Study_Time" required>
+                        <option value="1">1 - &lt;2 hours</option>
+                        <option value="2" selected>2 - 2-5 hours</option>
+                        <option value="3">3 - 5-10 hours</option>
+                        <option value="4">4 - &gt;10 hours</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">School Support</label>
+                    <select class="form-select" name="School_Support" required>
+                        <option value="yes">Yes</option>
+                        <option value="no" selected>No</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Family Support</label>
+                    <select class="form-select" name="Family_Support" required>
+                        <option value="yes" selected>Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Extra Paid Class</label>
+                    <select class="form-select" name="Extra_Paid_Class" required>
+                        <option value="yes">Yes</option>
+                        <option value="no" selected>No</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Wants Higher Education</label>
+                    <select class="form-select" name="Wants_Higher_Education" required>
+                        <option value="yes" selected>Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="card mb-4">
+        <div class="card-header"><i class="fas fa-calendar-check me-2" style="color: #e67e22;"></i>Attendance</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Number of Absences (0-93)</label>
+                    <input type="number" class="form-control" name="Number_of_Absences" min="0" max="93" value="4" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="card mb-4">
+        <div class="card-header"><i class="fas fa-user-cog me-2" style="color: #9b59b6;"></i>Behavioral Factors</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Extra-Curricular Activities</label>
+                    <select class="form-select" name="Extra_Curricular_Activities" required>
+                        <option value="yes" selected>Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Free Time (1-5)</label>
+                    <input type="number" class="form-control" name="Free_Time" min="1" max="5" value="3" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Going Out (1-5)</label>
+                    <input type="number" class="form-control" name="Going_Out" min="1" max="5" value="3" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Health Status (1-5)</label>
+                    <input type="number" class="form-control" name="Health_Status" min="1" max="5" value="3" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Weekday Alcohol (1-5)</label>
+                    <input type="number" class="form-control" name="Weekday_Alcohol_Consumption" min="1" max="5" value="1" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Weekend Alcohol (1-5)</label>
+                    <input type="number" class="form-control" name="Weekend_Alcohol_Consumption" min="1" max="5" value="1" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">In Relationship</label>
+                    <select class="form-select" name="In_Relationship" required>
+                        <option value="yes">Yes</option>
+                        <option value="no" selected>No</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="card mb-4">
+        <div class="card-header"><i class="fas fa-id-card me-2" style="color: #1abc9c;"></i>Demographic Information</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Gender</label>
+                    <select class="form-select" name="Gender" required>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Age (15-22)</label>
+                    <input type="number" class="form-control" name="Age" min="15" max="22" value="17" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Address</label>
+                    <select class="form-select" name="Address" required>
+                        <option value="U" selected>Urban</option>
+                        <option value="R">Rural</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Family Size</label>
+                    <select class="form-select" name="Family_Size" required>
+                        <option value="LE3">≤3 members</option>
+                        <option value="GT3" selected>&gt;3 members</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Parental Status</label>
+                    <select class="form-select" name="Parental_Status" required>
+                        <option value="T" selected>Together</option>
+                        <option value="A">Apart</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Mother Education (0-4)</label>
+                    <select class="form-select" name="Mother_Education" required>
+                        <option value="0">0 - None</option>
+                        <option value="1">1 - Primary (4th)</option>
+                        <option value="2" selected>2 - 5th-9th Grade</option>
+                        <option value="3">3 - Secondary</option>
+                        <option value="4">4 - Higher Education</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Father Education (0-4)</label>
+                    <select class="form-select" name="Father_Education" required>
+                        <option value="0">0 - None</option>
+                        <option value="1">1 - Primary (4th)</option>
+                        <option value="2" selected>2 - 5th-9th Grade</option>
+                        <option value="3">3 - Secondary</option>
+                        <option value="4">4 - Higher Education</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Mother Job</label>
+                    <select class="form-select" name="Mother_Job" required>
+                        <option value="teacher">Teacher</option>
+                        <option value="health">Health</option>
+                        <option value="services">Services</option>
+                        <option value="at_home" selected>At Home</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Father Job</label>
+                    <select class="form-select" name="Father_Job" required>
+                        <option value="teacher">Teacher</option>
+                        <option value="health">Health</option>
+                        <option value="services">Services</option>
+                        <option value="at_home">At Home</option>
+                        <option value="other" selected>Other</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Reason for Choosing School</label>
+                    <select class="form-select" name="Reason_for_Choosing_School" required>
+                        <option value="home">Close to Home</option>
+                        <option value="reputation">Reputation</option>
+                        <option value="course" selected>Course Preference</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Guardian</label>
+                    <select class="form-select" name="Guardian" required>
+                        <option value="mother" selected>Mother</option>
+                        <option value="father">Father</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Travel Time (1-4)</label>
+                    <select class="form-select" name="Travel_Time" required>
+                        <option value="1" selected>1 - &lt;15 min</option>
+                        <option value="2">2 - 15-30 min</option>
+                        <option value="3">3 - 30-60 min</option>
+                        <option value="4">4 - &gt;60 min</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Family Relationship (1-5)</label>
+                    <input type="number" class="form-control" name="Family_Relationship" min="1" max="5" value="4" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Attended Nursery</label>
+                    <select class="form-select" name="Attended_Nursery" required>
+                        <option value="yes" selected>Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Internet Access</label>
+                    <select class="form-select" name="Internet_Access" required>
+                        <option value="yes" selected>Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mb-5">
+        <button type="submit" class="btn btn-primary btn-lg px-5">
+            <i class="fas fa-brain me-2"></i>Predict Dropout Risk
+        </button>
+    </div>
+</form>
+{% endblock %}

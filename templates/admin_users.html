@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Manage Users - EduPredict{% endblock %}
+{% block content %}
+<div class="pg-hd">
+    <h2><i class="fas fa-users-cog" style="color:var(--pr)"></i> User Management</h2>
+    <p>Add, view, and manage system users</p>
+</div>
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-user-plus" style="margin-right:8px;color:var(--pr)"></i>Add New User</div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('admin_add_user') }}" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:end">
+            <div>
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" name="full_name" placeholder="e.g. Ahmad bin Ali" required>
+            </div>
+            <div>
+                <label class="form-label">Username</label>
+                <input type="text" class="form-control" name="username" placeholder="Choose username" required>
+            </div>
+            <div>
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" placeholder="user@email.com" required>
+            </div>
+            <div>
+                <label class="form-label">Role</label>
+                <select class="form-select" name="role">
+                    <option value="teacher">Teacher</option>
+                    <option value="counselor">Counselor</option>
+                    <option value="admin">Administrator</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Temporary Password</label>
+                <input type="password" class="form-control" name="password" placeholder="Min 6 characters" required>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary btn-block" style="border-radius:var(--r);padding:11px 20px;height:46px"><i class="fas fa-user-plus"></i> Add User</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header"><i class="fas fa-list" style="margin-right:8px"></i>All Users ({{ users|length }})</div>
+    <div class="card-body" style="padding:0;overflow-x:auto">
+        <table class="table" style="margin:0;min-width:600px">
+            <thead>
+                <tr><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Joined</th><th style="width:70px">Action</th></tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td style="font-weight:600">{{ user.full_name }}</td>
+                    <td>{{ user.username }}</td>
+                    <td style="color:var(--txm);font-size:13px">{{ user.email }}</td>
+                    <td>
+                        {% if user.role == 'admin' %}
+                        <span style="background:var(--prg);color:var(--pr);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600">Admin</span>
+                        {% elif user.role == 'counselor' %}
+                        <span style="background:rgba(251,191,36,.1);color:var(--amb);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600">Counselor</span>
+                        {% else %}
+                        <span style="background:rgba(52,211,153,.1);color:var(--grn);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600">Teacher</span>
+                        {% endif %}
+                    </td>
+                    <td style="color:var(--txm);font-size:13px">{{ user.created_at.strftime('%d %b %Y') }}</td>
+                    <td>
+                        {% if user.username != 'admin' %}
+                        <a href="{{ url_for('admin_delete_user', user_id=user.id) }}" class="btn btn-sm" style="border-radius:8px;padding:5px 12px;font-size:12px;color:var(--red);border:1px solid var(--red)" onclick="return confirm('Delete {{ user.full_name }}?')"><i class="fas fa-trash"></i></a>
+                        {% else %}
+                        <span style="color:var(--txm);font-size:12px">Protected</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block extra_css %}
+<style>
+@media(max-width:900px){
+    form[style*="grid-template-columns"]{grid-template-columns:1fr!important}
+}
+</style>
+{% endblock %}

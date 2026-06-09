@@ -1,0 +1,83 @@
+{
+  "accuracy": 0.9870340356564019,
+  "precision": 0.941747572815534,
+  "recall": 0.9797979797979798,
+  "f1_score": 0.9603960396039604,
+  "roc_auc": 0.9994929994929995,
+  "confusion_matrix": [
+    [
+      512,
+      6
+    ],
+    [
+      2,
+      97
+    ]
+  ],
+  "dataset_size": 3084,
+  "train_size": 2467,
+  "test_size": 617,
+  "n_features": 42,
+  "feature_importance": [
+    {
+      "feature": "Final_Grade",
+      "shap_importance": 0.21388152420081455
+    },
+    {
+      "feature": "Grade_1",
+      "shap_importance": 0.10232951801336193
+    },
+    {
+      "feature": "Grade_2",
+      "shap_importance": 0.07866932329179528
+    },
+    {
+      "feature": "Number_of_Failures",
+      "shap_importance": 0.02676216234927094
+    },
+    {
+      "feature": "School",
+      "shap_importance": 0.024143881169133016
+    },
+    {
+      "feature": "Wants_Higher_Education",
+      "shap_importance": 0.010154169951349776
+    },
+    {
+      "feature": "Mother_Education",
+      "shap_importance": 0.008214852728235382
+    },
+    {
+      "feature": "Study_Time",
+      "shap_importance": 0.007922026722086884
+    },
+    {
+      "feature": "Going_Out",
+      "shap_importance": 0.0077867829255769735
+    },
+    {
+      "feature": "Father_Education",
+      "shap_importance": 0.0075261889028472705
+    },
+    {
+      "feature": "Family_Relationship",
+      "shap_importance": 0.007197209054794135
+    },
+    {
+      "feature": "Address",
+      "shap_importance": 0.006163161423855376
+    },
+    {
+      "feature": "Age",
+      "shap_importance": 0.005618486191614907
+    },
+    {
+      "feature": "Weekday_Alcohol_Consumption",
+      "shap_importance": 0.005143680174085771
+    },
+    {
+      "feature": "Gender",
+      "shap_importance": 0.004536068236513027
+    }
+  ]
+}

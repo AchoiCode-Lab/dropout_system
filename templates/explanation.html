@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}SHAP Explanation - EduPredict{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-lightbulb me-2" style="color: var(--pr);"></i>SHAP Explanation</h2>
+    <p>Understanding how the Random Forest model makes dropout predictions using SHapley Additive exPlanations</p>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-question-circle me-2"></i>What is SHAP?</div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-8">
+                <p style="font-size: 14px; line-height: 1.8;">
+                    <strong>SHapley Additive exPlanations (SHAP)</strong> is an Explainable AI (XAI) method based on game theory's Shapley values. 
+                    It explains each prediction by computing how much each feature contributed to the final outcome.
+                </p>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="p-3" style="background:rgba(244,63,94,.06);border-radius:12px;border-left:3px solid var(--red);padding:18px 20px!important">
+                            <strong style="color:var(--red);font-size:15px"><i class="fas fa-arrow-up me-2"></i>Positive SHAP Value</strong>
+                            <p style="color:var(--tx2);font-size:13px;margin:8px 0 0">
+                                This feature INCREASES the dropout risk prediction. Example: Low grades push the prediction toward "At-Risk."
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3" style="background:rgba(52,211,153,.06);border-radius:12px;border-left:3px solid var(--grn);padding:18px 20px!important">
+                            <strong style="color:var(--grn);font-size:15px"><i class="fas fa-arrow-down me-2"></i>Negative SHAP Value</strong>
+                            <p style="color:var(--tx2);font-size:13px;margin:8px 0 0">
+                                This feature DECREASES the dropout risk prediction. Example: High grades push the prediction toward "Not At-Risk."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="p-3" style="background: rgba(59,130,246,0.05); border-radius: 8px;">
+                    <h6><i class="fas fa-cogs me-2"></i>How It Works</h6>
+                    <ol style="color: var(--tx2); font-size: 13px; padding-left: 16px;">
+                        <li class="mb-2">Model makes a prediction for a student</li>
+                        <li class="mb-2">SHAP computes each feature's contribution</li>
+                        <li class="mb-2">Positive values = increase risk</li>
+                        <li class="mb-2">Negative values = decrease risk</li>
+                        <li>Sum of all SHAP values = final prediction</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-sort-amount-down me-2"></i>Global Feature Importance (All Students)</div>
+    <div class="card-body">
+        <div id="globalShap"></div>
+        <p style="color: var(--tx2); font-size: 12px; margin-top: 12px;">
+            <i class="fas fa-info-circle me-1"></i>
+            This chart shows the <strong>average absolute SHAP value</strong> for each feature across all students. 
+            Higher values indicate that the feature has more influence on the model's predictions overall.
+            <strong>Final Grade</strong> is the most important feature, confirming that academic performance is the strongest predictor of dropout risk.
+        </p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-chart-pie me-2"></i>Feature Category Contribution</div>
+            <div class="card-body">
+                <div id="categoryChart"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-clipboard-list me-2"></i>Feature Category Breakdown</div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6 style="color: #3498db;"><i class="fas fa-book me-2"></i>Academic Features (Strongest Impact)</h6>
+                    <p style="color: var(--tx2); font-size: 13px;">
+                        Grade 1, Grade 2, Final Grade, Number of Failures, Study Time. 
+                        Academic performance is the most significant predictor. Students with declining grades and past failures are significantly more likely to drop out.
+                    </p>
+                </div>
+                <div class="mb-4">
+                    <h6 style="color: #e67e22;"><i class="fas fa-calendar-check me-2"></i>Attendance Features</h6>
+                    <p style="color: var(--tx2); font-size: 13px;">
+                        Number of Absences. High absenteeism is a strong indicator of disengagement and potential dropout.
+                    </p>
+                </div>
+                <div class="mb-4">
+                    <h6 style="color: #9b59b6;"><i class="fas fa-user-cog me-2"></i>Behavioral Features</h6>
+                    <p style="color: var(--tx2); font-size: 13px;">
+                        Free Time, Going Out, Alcohol Consumption, Health Status, Extra-Curricular Activities. 
+                        Behavioral patterns provide additional context to academic indicators.
+                    </p>
+                </div>
+                <div>
+                    <h6 style="color: #1abc9c;"><i class="fas fa-id-card me-2"></i>Demographic Features</h6>
+                    <p style="color: var(--tx2); font-size: 13px;">
+                        Age, Gender, Parental Education, Family Size, Address. 
+                        Background factors contribute to the overall risk profile but are less influential than academic factors.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-robot me-2"></i>Model Details</div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 text-center mb-3">
+                <div style="font-size: 28px; font-weight: 700; color: var(--pr);">Random Forest</div>
+                <div style="color: var(--tx2); font-size: 12px;">Algorithm</div>
+            </div>
+            <div class="col-md-3 text-center mb-3">
+                <div style="font-size: 28px; font-weight: 700; color: var(--grn);">{{ "%.2f"|format(metrics.accuracy * 100) }}%</div>
+                <div style="color: var(--tx2); font-size: 12px;">Accuracy</div>
+            </div>
+            <div class="col-md-3 text-center mb-3">
+                <div style="font-size: 28px; font-weight: 700; color: var(--warning);">{{ metrics.n_features }}</div>
+                <div style="color: var(--tx2); font-size: 12px;">Features Used</div>
+            </div>
+            <div class="col-md-3 text-center mb-3">
+                <div style="font-size: 28px; font-weight: 700; color: #9b59b6;">TreeSHAP</div>
+                <div style="color: var(--tx2); font-size: 12px;">Explainer Method</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const config = {responsive: true, displayModeBar: false};
+    Plotly.newPlot('globalShap', JSON.parse('{{ global_shap | safe }}').data, JSON.parse('{{ global_shap | safe }}').layout, config);
+    Plotly.newPlot('categoryChart', JSON.parse('{{ category_chart | safe }}').data, JSON.parse('{{ category_chart | safe }}').layout, config);
+</script>
+{% endblock %}

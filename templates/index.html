@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduPredict - AI Student Dropout Prediction</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--font:'DM Sans',system-ui,sans-serif;--display:'Fraunces',Georgia,serif}
+[data-theme="dark"]{--bg:#050811;--sf:#0d1025;--tx:#eef0f8;--tx2:#8b93b0;--txm:#555e7e;--pr:#7c3aed;--prh:#a78bfa;--bd:rgba(255,255,255,.05);--glow1:#7c3aed;--glow2:#ec4899;--glow3:#3b82f6}
+[data-theme="light"]{--bg:#f8f9fd;--sf:#ffffff;--tx:#0f172a;--tx2:#475569;--txm:#94a3b8;--pr:#6d28d9;--prh:#7c3aed;--bd:rgba(0,0,0,.06);--glow1:#7c3aed;--glow2:#ec4899;--glow3:#3b82f6}
+body{font-family:var(--font);background:var(--bg);color:var(--tx);overflow-x:hidden;-webkit-font-smoothing:antialiased;transition:background .4s,color .4s}
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;padding:20px 48px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(16px);background:rgba(5,8,17,.5);border-bottom:1px solid var(--bd);transition:background .3s}
+[data-theme="light"] .nav{background:rgba(248,249,253,.8)}
+.nav-logo{font-family:var(--display);font-size:24px;font-weight:600;color:var(--tx);letter-spacing:-.03em}
+.nav-logo span{color:var(--pr)}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{color:var(--tx2);font-size:14px;font-weight:500;text-decoration:none;position:relative;transition:color .2s}
+.nav-links a:hover{color:var(--tx)}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:-4px;width:0;height:2px;background:var(--pr);border-radius:2px;transition:width .2s}
+.nav-links a:hover::after{width:100%}
+.nav-cta{display:flex;gap:12px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:999px;font-family:inherit;font-weight:600;font-size:14px;border:1.5px solid transparent;cursor:pointer;transition:all .2s;text-decoration:none}
+.btn-ghost{color:var(--tx2);background:transparent;border:none}.btn-ghost:hover{color:var(--tx)}
+.btn-primary{background:var(--pr);color:#fff;border-color:var(--pr)}.btn-primary:hover{background:var(--prh);border-color:var(--prh);transform:translateY(-1px);box-shadow:0 8px 30px rgba(124,58,237,.3)}
+.btn-outline{color:var(--tx);border-color:var(--bd);background:transparent}.btn-outline:hover{border-color:var(--tx2);background:rgba(255,255,255,.03)}
+.btn-lg{padding:14px 28px;font-size:16px}
+.th-pill{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;background:var(--sf);border:1px solid var(--bd);color:var(--tx2);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
+.th-pill:hover{border-color:var(--pr);color:var(--pr)}
+.th-pill i{font-size:14px}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.15;pointer-events:none;transition:opacity .4s}
+.orb-1{width:600px;height:600px;background:var(--glow1);top:-200px;left:-100px}
+.orb-2{width:500px;height:500px;background:var(--glow2);bottom:-150px;right:-100px}
+.orb-3{width:400px;height:400px;background:var(--glow3);top:30%;right:10%}
+[data-theme="light"] .orb{opacity:.08}
+.hero h1{font-family:var(--display);font-size:clamp(40px,7vw,80px);font-weight:700;letter-spacing:-.04em;line-height:1.05;max-width:900px;margin-bottom:24px;position:relative;z-index:1}
+.hero h1 .hl{background:linear-gradient(135deg,var(--glow1),var(--glow2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:clamp(16px,2vw,20px);color:var(--tx2);max-width:560px;margin-bottom:40px;line-height:1.7;position:relative;z-index:1}
+.hero-actions{display:flex;gap:16px;position:relative;z-index:1}
+.dot-grid{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.dot-grid .dot{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--tx);opacity:.08;transition:transform .6s cubic-bezier(.25,.1,.25,1),opacity .6s}
+[data-theme="light"] .dot-grid .dot{opacity:.06}
+.stats{padding:80px 24px;position:relative;z-index:1}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;max-width:900px;margin:0 auto}
+.stat-item{text-align:center;padding:32px 16px;background:var(--sf);border:1px solid var(--bd);border-radius:18px;transition:transform .2s,box-shadow .2s}
+.stat-item:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.15)}
+.stat-item .num{font-family:var(--display);font-size:36px;font-weight:700;color:var(--pr);letter-spacing:-.03em}
+.stat-item .lbl{color:var(--tx2);font-size:13px;margin-top:4px;font-weight:500}
+.features{padding:80px 24px;max-width:1100px;margin:0 auto}
+.features h2{font-family:var(--display);font-size:36px;text-align:center;margin-bottom:12px;letter-spacing:-.03em}
+.features .sub{text-align:center;color:var(--tx2);margin-bottom:48px;font-size:16px}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.feat-card{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:32px;transition:all .2s}
+.feat-card:hover{border-color:var(--pr);transform:translateY(-3px);box-shadow:0 8px 30px rgba(124,58,237,.08)}
+.feat-card .icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:18px;background:rgba(124,58,237,.08);color:var(--pr)}
+.feat-card h3{font-size:17px;margin-bottom:8px}
+.feat-card p{color:var(--tx2);font-size:14px;line-height:1.65}
+.footer{text-align:center;padding:48px 24px;color:var(--txm);font-size:13px;border-top:1px solid var(--bd)}
+.footer a{color:var(--pr);text-decoration:none}
+@media(max-width:768px){.nav{padding:16px 20px}.nav-links{display:none}.stats-grid{grid-template-columns:repeat(2,1fr)}.feat-grid{grid-template-columns:1fr}.hero-actions{flex-direction:column;align-items:center}}
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<nav class="nav">
+    <div class="nav-logo">Edu<span>.</span>Predict</div>
+    <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#stats">About</a>
+    </div>
+    <div class="nav-cta">
+        <button class="th-pill" onclick="toggleTheme()"><i id="thIcon" class="fas fa-moon"></i><span id="thText">Dark</span></button>
+        <a href="{{ url_for('login') }}" class="btn btn-ghost">Log In</a>
+        <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+    </div>
+</nav>
+<section class="hero" id="heroSection">
+    <div class="dot-grid" id="dotGrid"></div>
+    <h1>Predict dropout <span class="hl">before</span> it happens.</h1>
+    <p>An explainable AI system using Random Forest + SHAP to identify at-risk secondary school students early and explain exactly why.</p>
+    <div class="hero-actions">
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg"><i class="fas fa-rocket"></i> Get Started</a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline btn-lg"><i class="fas fa-sign-in-alt"></i> Log In</a>
+    </div>
+</section>
+<section class="stats" id="stats">
+    <div class="stats-grid">
+        <div class="stat-item"><div class="num">3,000+</div><div class="lbl">Student Records</div></div>
+        <div class="stat-item"><div class="num">98.7%</div><div class="lbl">Model Accuracy</div></div>
+        <div class="stat-item"><div class="num">42</div><div class="lbl">Features Analyzed</div></div>
+        <div class="stat-item"><div class="num">SHAP</div><div class="lbl">Explainable AI</div></div>
+    </div>
+</section>
+<section class="features" id="features">
+    <h2>How it works</h2>
+    <p class="sub">Three categories of student data, one powerful prediction engine.</p>
+    <div class="feat-grid">
+        <div class="feat-card"><div class="icon"><i class="fas fa-book"></i></div><h3>Academic Analysis</h3><p>Grades, study time, past failures, and support systems are analyzed to detect early signs of academic disengagement.</p></div>
+        <div class="feat-card"><div class="icon"><i class="fas fa-calendar-check"></i></div><h3>Attendance Tracking</h3><p>Absence patterns reveal hidden disengagement. High absenteeism is a strong early indicator of dropout risk.</p></div>
+        <div class="feat-card"><div class="icon"><i class="fas fa-user-cog"></i></div><h3>Behavioral Factors</h3><p>Extra-curricular participation, social habits, and health indicators complete the student risk profile.</p></div>
+        <div class="feat-card"><div class="icon"><i class="fas fa-brain"></i></div><h3>Random Forest ML</h3><p>200 decision trees work together for robust, accurate predictions even with imperfect school data.</p></div>
+        <div class="feat-card"><div class="icon"><i class="fas fa-lightbulb"></i></div><h3>SHAP Explainability</h3><p>Every prediction is transparent. Teachers see exactly which factors drive the risk, not just a score.</p></div>
+        <div class="feat-card"><div class="icon"><i class="fas fa-chart-line"></i></div><h3>Interactive Dashboard</h3><p>Plotly-powered charts: heatmaps, box plots, bubble charts. Real-time analysis at your fingertips.</p></div>
+    </div>
+</section>
+<section style="padding:80px 24px;text-align:center">
+    <h2 style="font-family:var(--display);font-size:36px;margin-bottom:16px;letter-spacing:-.03em">Ready to identify at-risk students?</h2>
+    <p style="color:var(--tx2);margin-bottom:32px;font-size:16px">Start using EduPredict today.</p>
+    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg"><i class="fas fa-graduation-cap"></i> Create Account</a>
+</section>
+<footer class="footer">
+    <p>EduPredict - An Explainable ML Model for Early Prediction of Student Dropout</p>
+    <p style="margin-top:4px">UiTM FYP 2026 - Built with Random Forest + SHAP - <a href="{{ url_for('login') }}">Sign In</a></p>
+</footer>
+<script>
+function toggleTheme(){var h=document.documentElement,c=h.getAttribute('data-theme'),n=c==='dark'?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('theme',n);updIco(n)}
+function updIco(t){var i=document.getElementById('thIcon'),s=document.getElementById('thText');if(i)i.className=t==='dark'?'fas fa-moon':'fas fa-sun';if(s)s.textContent=t==='dark'?'Dark':'Light'}
+var sv=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',sv);updIco(sv);
+(function(){var g=document.getElementById('dotGrid'),h=document.getElementById('heroSection');if(!g||!h)return;var sp=40,w=h.offsetWidth,ht=h.offsetHeight,cols=Math.ceil(w/sp),rows=Math.ceil(ht/sp),dots=[];for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){var d=document.createElement('div');d.className='dot';var x=c*sp+sp/2,y=r*sp+sp/2;d.style.left=x+'px';d.style.top=y+'px';d._ox=x;d._oy=y;g.appendChild(d);dots.push(d)}var rad=150,str=25;h.addEventListener('mousemove',function(e){var rect=h.getBoundingClientRect(),mx=e.clientX-rect.left,my=e.clientY-rect.top;for(var i=0;i<dots.length;i++){var dd=dots[i],dx=dd._ox-mx,dy=dd._oy-my,dist=Math.sqrt(dx*dx+dy*dy);if(dist<rad){var f=(1-dist/rad)*str,a=Math.atan2(dy,dx);dd.style.transform='translate('+Math.cos(a)*f+'px,'+Math.sin(a)*f+'px)';dd.style.opacity=0.2+((1-dist/rad)*0.5)}else{dd.style.transform='translate(0,0)';dd.style.opacity=''}}});h.addEventListener('mouseleave',function(){dots.forEach(function(dd){dd.style.transform='translate(0,0)';dd.style.opacity=''})})})();
+</script>
+</body>
+</html>

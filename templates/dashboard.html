@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - EduPredict{% endblock %}
+
+{% block content %}
+<div class="pg-hd">
+    <h2><i class="fas fa-chart-line" style="color:var(--pr)"></i> Dashboard</h2>
+    <p>Overview of student dropout risk analysis and model performance</p>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:var(--prg);color:var(--pr)"><i class="fas fa-users"></i></div>
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Total Students</div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(244,63,94,.1);color:var(--red)"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="stat-value">{{ stats.at_risk }}</div>
+            <div class="stat-label">At-Risk Students ({{ stats.risk_pct }}%)</div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(52,211,153,.1);color:var(--grn)"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-value">{{ stats.not_at_risk }}</div>
+            <div class="stat-label">Not At-Risk Students</div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(251,191,36,.1);color:var(--amb)"><i class="fas fa-bullseye"></i></div>
+            <div class="stat-value">{{ stats.accuracy }}%</div>
+            <div class="stat-label">Model Accuracy</div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-tachometer-alt"></i> Model Performance Metrics</div>
+    <div class="card-body"><div id="gaugeChart" class="plotly-chart"></div></div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-chart-pie"></i> Dropout Risk Distribution</div>
+            <div class="card-body"><div id="pieChart" class="plotly-chart"></div></div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-box"></i> Grade Distribution by Dropout Status</div>
+            <div class="card-body"><div id="boxChart" class="plotly-chart"></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-sort-amount-down"></i> Top Feature Importance (SHAP)</div>
+            <div class="card-body"><div id="barChart" class="plotly-chart"></div></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-circle"></i> Absences vs Final Grade</div>
+            <div class="card-body"><div id="bubbleChart" class="plotly-chart"></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-th"></i> Correlation Heatmap</div>
+    <div class="card-body"><div id="heatmapChart" class="plotly-chart"></div></div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-venus-mars"></i> Dropout by Gender</div>
+            <div class="card-body"><div id="genderChart" class="plotly-chart"></div></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-birthday-cake"></i> Age Distribution</div>
+            <div class="card-body"><div id="ageChart" class="plotly-chart"></div></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const c={responsive:true,displayModeBar:false};
+const p=(id,d)=>{const o=JSON.parse(d);Plotly.newPlot(id,o.data,o.layout,c)};
+p('pieChart','{{ plots.pie_chart | safe }}');
+p('boxChart','{{ plots.box_chart | safe }}');
+p('barChart','{{ plots.bar_chart | safe }}');
+p('bubbleChart','{{ plots.bubble_chart | safe }}');
+p('heatmapChart','{{ plots.heatmap | safe }}');
+p('gaugeChart','{{ plots.gauge_chart | safe }}');
+p('genderChart','{{ plots.gender_chart | safe }}');
+p('ageChart','{{ plots.age_chart | safe }}');
+</script>
+{% endblock %}
